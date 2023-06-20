@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  python:
+    image: joyzoursky/python-chromedriver:3.9-selenium
+    build: .
+    restart: always

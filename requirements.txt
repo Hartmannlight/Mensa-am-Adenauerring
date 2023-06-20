@@ -1,0 +1,2 @@
+discord~=2.3.0
+selenium~=4.10.0
