@@ -5,3 +5,8 @@ services:
     image: joyzoursky/python-chromedriver:3.9-selenium
     build: .
     restart: always
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - GUILD=${GUILD}
+      - UPDATE_INTERVAL=${UPDATE_INTERVAL}
+      - PREFIX=${PREFIX}

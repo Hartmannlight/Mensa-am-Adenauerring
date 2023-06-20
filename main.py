@@ -22,7 +22,7 @@ class Bot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(command_prefix="!", intents=intents)
+        super().__init__(command_prefix=config.PREFIX, intents=intents)
 
     async def setup_hook(self):
         print("Setting up...")
@@ -35,7 +35,7 @@ bot = Bot()
 
 
 # update menu every day at 00:05
-@tasks.loop(time=datetime.time(hour=22, minute=5))  # utc time
+@tasks.loop(seconds=config.UPDATE_INTERVAL)  # utc time
 async def update_menu():
     print("Automatically updating menu")
     menu.update()
