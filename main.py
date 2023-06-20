@@ -63,7 +63,7 @@ async def mensa(ctx: commands.Context, response_format: str = "embed"):
 
 
 async def mensa_embed(ctx: commands.Context):
-    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa am Adenauring - " + datetime.date.today().strftime('%A %d.%m.%Y'), color=0xff2f00)
+    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa-am-Adenauerring - " + datetime.date.today().strftime('%A %d.%m.%Y'), color=0xff2f00)
     embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan")
 
     embed.add_field(name="Linie 1 Gut & Günstig", value="\n".join(menu.text[0]))
