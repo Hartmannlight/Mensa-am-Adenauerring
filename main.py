@@ -51,7 +51,7 @@ async def update_menu():
 
 
 def get_menu_embed():
-    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa-am-Adenauerring - " + datetime.date.today().strftime('%A %d.%m.%Y'), color=0xff2f00)
+    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa-am-Adenauerring - " + datetime.date.today().strftime("%A %d.%m.%Y"), color=0xff2f00)
     embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan")
 
     embed.add_field(name="Linie 1 Gut & Günstig", value="\n".join(menu.text[0]))
@@ -70,6 +70,7 @@ bot = Bot()
 @bot.hybrid_command(name="update", description="Aktualisiert den Speiseplan.")
 @app_commands.guilds(discord.Object(id=config.GUILD))
 async def mensa(ctx: commands.Context):
+    print(f"Updating menu, author: {ctx.author}")
     await ctx.reply("Aktualisiere Speiseplan...")
     menu.update()
     await ctx.reply("Speiseplan aktualisiert.")
@@ -94,5 +95,5 @@ async def mensa_screenshot(ctx: commands.Context):
     await ctx.reply(file=discord.File(BytesIO(menu.screenshot), filename=datetime.date.today().strftime('%Y-%m-%d.png')))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     bot.run(config.BOT_TOKEN)
