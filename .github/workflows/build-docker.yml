@@ -21,7 +21,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v4
         with:
-          images: "ghcr.io/${{ github.repository }}"
+          images: "ghcr.io/Hartmannlight/kit-mensa-discord-bot"
           tags: |
             type=sha
             type=ref,event=branch
