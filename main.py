@@ -1,12 +1,16 @@
 import locale
+
+import holidays
 import config
-import MenuGrabber
 import datetime
+from io import BytesIO
+
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
-from io import BytesIO
+from dateutil.rrule import DAILY, rrule, MO, TU, WE, TH, FR
 
+import MenuGrabber
 
 # todos:
 # - add error handling
@@ -36,9 +40,29 @@ class Bot(commands.Bot):
         update_menu.start()
 
 
+def post_today():
+    today = datetime.date.today()
+
+    # only on weekdays
+    if today.weekday() >= 5:
+        return False
+
+    # not on public holidays
+    public_holidays = holidays.country_holidays("DE", subdiv="BW")
+    if public_holidays.get(today):
+        return False
+
+    return True
+
+
 # 09:30 Berlin time
 @tasks.loop(time=datetime.time(hour=9, minute=30, tzinfo=datetime.timezone(datetime.timedelta(hours=1))))
 async def post_menu():
+    # tasks.loop only allows time objects, not datetime objects
+    # so we need to filter out if we want to post here
+    if not post_today():
+        print("Not posting menu today")
+        return
     print("Posting menu")
     await bot.get_channel(config.CHANNEL_ID).send(embed=get_menu_embed())
 
