@@ -32,7 +32,7 @@ class Bot(commands.Bot):
         await self.tree.sync(guild=discord.Object(id=config.GUILD))
         menu.update()
         # set locale s.t. date gets displayed in German
-        locale.setlocale(locale.LC_TIME, "de_DE")
+        locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
         print("Setup complete.")
     
     async def on_ready(self):
