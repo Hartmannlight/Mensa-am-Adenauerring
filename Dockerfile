@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.11
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
@@ -15,21 +15,11 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 # set display port to avoid crash
 ENV DISPLAY=:99
-
-# upgrade pip
 RUN pip install --upgrade pip
-
-# install selenium
-RUN pip install selenium
-
-
 WORKDIR /app
 
-# By copying over requirements first, we make sure that Docker will cache
-# our installed requirements rather than reinstall them on every build
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
-# Now copy in our code, and run it
 COPY . /app
-CMD ["python", "-u", "main.py"]
+CMD ["python", "main.py"]
