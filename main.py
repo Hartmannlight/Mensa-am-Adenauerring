@@ -1,24 +1,28 @@
-import locale
-
-import holidays
 import config
+import MenuGrabber
+
 import datetime
+import holidays
+from zoneinfo import ZoneInfo
+
 from io import BytesIO
 
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
-from dateutil.rrule import DAILY, rrule, MO, TU, WE, TH, FR
 
-import MenuGrabber
 
 # todos:
-# - add error handling
-# - add menu preview for the next days
-# - add command for koeri and cafeteria
+# - add a docker-compose file for my image
+# - stick with .env config?
+# - configurable automatic daily post
+# - edit / update automatic post
+# - error handling
+# - non-blocking update if possible
+# - menu preview for the next days
+# - command for koeri and cafeteria
 # - show last update time
-# - clean up docker files
-# - add allergens to screenshot
+# - allergens to screenshot
 
 menu = MenuGrabber.Menu()
 
@@ -31,10 +35,8 @@ class Bot(commands.Bot):
         print("Setting up...")
         await self.tree.sync(guild=discord.Object(id=config.GUILD))
         menu.update()
-        # set locale s.t. date gets displayed in German
-        locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
         print("Setup complete.")
-    
+
     async def on_ready(self):
         post_menu.start()
         update_menu.start()
@@ -56,10 +58,10 @@ def post_today():
 
 
 # 09:30 Berlin time
-@tasks.loop(time=datetime.time(hour=9, minute=30, tzinfo=datetime.timezone(datetime.timedelta(hours=1))))
+@tasks.loop(time=datetime.time(hour=9, minute=30, tzinfo=ZoneInfo("Europe/Berlin")))
 async def post_menu():
     # tasks.loop only allows time objects, not datetime objects
-    # so we need to filter out if we want to post here
+    # so, we need to filter out if we want to post here
     if not post_today():
         print("Not posting menu today")
         return
@@ -67,15 +69,14 @@ async def post_menu():
     await bot.get_channel(config.CHANNEL_ID).send(embed=get_menu_embed())
 
 
-# update menu every day at 00:05
-@tasks.loop(seconds=config.UPDATE_INTERVAL)  # utc time
+@tasks.loop(seconds=config.UPDATE_INTERVAL)
 async def update_menu():
     print("Updating menu")
     menu.update()
 
 
 def get_menu_embed():
-    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa-am-Adenauerring - " + datetime.date.today().strftime("%A %d.%m.%Y"), color=0xff2f00)
+    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa am Adenauerring - " + datetime.date.today().strftime("%A %d.%m.%Y"), color=0xff2f00)
     embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan")
 
     embed.add_field(name="Linie 1 Gut & Günstig", value="\n".join(menu.text[0]))
