@@ -43,13 +43,16 @@ def update_menu(date: datetime.date):
     for day in range(1, 6):
         driver.execute_script(f"setCanteenDiv({day});")  # select the right tab for the current day
 
-        menu = driver.find_element(by="id", value=f"canteen_day_{day}")
+        try:
+            menu = driver.find_element(by="id", value=f"canteen_day_{day}")
 
-        line_objects = update_menu_text(menu)
-        screenshot = update_screenshot(driver=driver, menu=menu)
+            line_objects = update_menu_text(menu)
+            screenshot = update_screenshot(driver=driver, menu=menu)
 
-        current_date = date + datetime.timedelta(days=day - 1)
-        plan[current_date] = (Menu(line_objects, screenshot))
+            current_date = date + datetime.timedelta(days=day - 1)
+            plan[current_date] = (Menu(line_objects, screenshot))
+        except:
+            break
 
     driver.quit()
 
