@@ -1,6 +1,6 @@
 import datetime
 import time
-
+import os
 import git
 import discord
 from discord import app_commands
@@ -11,7 +11,7 @@ import menu_grabber
 class Advanced(app_commands.Group):
     @app_commands.command()
     async def version(self, interaction: discord.Interaction):
-        repo = git.Repo(search_parent_directories=True)
+        repo = git.Repo(os.getcwd(), search_parent_directories=True)
         sha = repo.head.object.hexsha
         await interaction.response.send_message(sha)
 
