@@ -1,15 +1,14 @@
 import config
-import MenuGrabber
+import menu_grabber
+from groups.advanced import Advanced
+from groups.mensa import Mensa
 
 import datetime
 import holidays
 from zoneinfo import ZoneInfo
 
-from io import BytesIO
-
 import discord
-from discord.ext import commands, tasks
-from discord import app_commands
+from discord.ext import tasks
 
 
 # todos:
@@ -24,22 +23,24 @@ from discord import app_commands
 # - show last update time
 # - allergens to screenshot
 
-menu = MenuGrabber.Menu()
+
+bot = discord.Client(intents=discord.Intents.default())
+tree = discord.app_commands.CommandTree(bot)
 
 
-class Bot(commands.Bot):
-    def __init__(self):
-        super().__init__(command_prefix=[], intents=discord.Intents.default())
+@bot.event
+async def on_ready():
+    print("Logged in as", bot.user.name, bot.user.id)
 
-    async def setup_hook(self):
-        print("Setting up...")
-        await self.tree.sync(guild=discord.Object(id=config.GUILD))
-        menu.update()
-        print("Setup complete.")
+    tree.add_command(Mensa(name="mensa", description="Zeigt den aktuellen Speiseplan der Mensa an."))
+    tree.add_command(Advanced(name="advanced", description="Entwickler-Optionen"))
+    tree.copy_global_to(guild=discord.Object(id=config.GUILD))
+    await tree.sync(guild=discord.Object(id=config.GUILD))
+    print("synced commands")
 
-    async def on_ready(self):
-        post_menu.start()
-        update_menu.start()
+    post_menu.start()
+    update_menu.start()
+    print("started tasks")
 
 
 def post_today():
@@ -65,59 +66,15 @@ async def post_menu():
     if not post_today():
         print("Not posting menu today")
         return
-    print("Posting menu")
-    await bot.get_channel(config.CHANNEL_ID).send(embed=get_menu_embed())
+    print("Time to post the menu for today")
+    await bot.get_channel(config.CHANNEL_ID).send(embed=menu_grabber.get_menu_embed(datetime.date.today()))
 
 
 @tasks.loop(seconds=config.UPDATE_INTERVAL)
 async def update_menu():
-    print("Updating menu")
-    menu.update()
-
-
-def get_menu_embed():
-    embed = discord.Embed(title="Mensaeinheitsbrei der Mensa am Adenauerring - " + datetime.date.today().strftime("%A %d.%m.%Y"), color=0xff2f00)
-    embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan")
-
-    embed.add_field(name="Linie 1 Gut & Günstig", value="\n".join(menu.text[0]))
-    embed.add_field(name="Linie 2 Vegane Linie", value="\n".join(menu.text[1]))
-    embed.add_field(name="Linie 3", value="\n".join(menu.text[2]))
-    embed.add_field(name="Linie 4", value="\n".join(menu.text[3]))
-    embed.add_field(name="Linie 5", value="\n".join(menu.text[4]))
-    embed.add_field(name="Linie 6", value="\n".join(menu.text[6]))
-    embed.add_field(name="[pizza]werk", value="\n".join(menu.text[12]) + "\n" + "\n".join(menu.text[10]))
-    return embed
-
-
-bot = Bot()
-
-
-@bot.hybrid_command(name="update", description="Aktualisiert den Speiseplan.")
-@app_commands.guilds(discord.Object(id=config.GUILD))
-async def mensa(ctx: commands.Context):
-    print(f"Updating menu, author: {ctx.author}")
-    await ctx.reply("Aktualisiere Speiseplan...")
-    menu.update()
-    await ctx.reply("Speiseplan aktualisiert.")
-
-
-@bot.hybrid_command(name="mensa", description="Gibt den heutigen Speiseplan der Mensa am Adenauerring aus.")
-@app_commands.guilds(discord.Object(id=config.GUILD))
-async def mensa(ctx: commands.Context, response_format: str = "embed"):
-    if response_format == "embed":
-        await mensa_embed(ctx)
-    elif response_format == "screenshot" or response_format == "image" or response_format == "bild":
-        await mensa_screenshot(ctx)
-    else:
-        await ctx.reply("Bitte gib ein gültiges Format an: `embed`, `screenshot`")
-
-
-async def mensa_embed(ctx: commands.Context):
-    await ctx.reply(embed=get_menu_embed())
-
-
-async def mensa_screenshot(ctx: commands.Context):
-    await ctx.reply(file=discord.File(BytesIO(menu.screenshot), filename=datetime.date.today().strftime('%Y-%m-%d.png')))
+    print("Auto update started")
+    menu_grabber.update_menu(datetime.date.today())
+    print("Auto update finished")
 
 
 if __name__ == "__main__":
