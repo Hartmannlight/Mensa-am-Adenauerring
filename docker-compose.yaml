@@ -10,3 +10,4 @@ services:
       - GUILD=${GUILD}
       - UPDATE_INTERVAL=${UPDATE_INTERVAL}
       - PREFIX=${PREFIX}
+      - TZ=Europe/Berlin

@@ -17,7 +17,7 @@ def get_menu(date: datetime.date):
     if date in plan:
         return plan[date]
     else:
-        return plan[datetime.date.today()]
+        raise ValueError("No menu for this date")
 
 
 def get_menu_embed(date):
