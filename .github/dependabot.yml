@@ -1,6 +1,14 @@
 version: 2
 updates:
+
   - package-ecosystem: github-actions
-    directory: '/'
+    directory: "/"
     schedule:
-      interval: weekly
+      interval: "monthly"
+    target-branch: "dependabot"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "dependabot"
