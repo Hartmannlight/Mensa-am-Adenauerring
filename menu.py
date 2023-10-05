@@ -1,5 +1,3 @@
-import datetime
-
 
 class Diet:
     def __init__(self, abbreviation: str):
@@ -28,21 +26,45 @@ class Diet:
 
 
 class Meal:
-    def __init__(self, name: str, price: str,  diet: Diet, allergens: str):
+    def __init__(self, name: str, price: str, diet: Diet, allergens: str):
         self.name = name
         self.price = price
         self.diet = diet
         self.allergens = allergens
 
+    def __str__(self):
+        text = f"{self.diet.emoji} {self.name}"
+
+        if self.price != "":
+            text += f" **{self.price}**"
+
+        text += "\n"
+        return text
+
 
 class Line:
-    def __init__(self, name: str, meals: list[Meal], text: str):
+    def __init__(self, name: str, meals: list[Meal]):
         self.name = name
         self.meals = meals
-        self.text = text
+
+    def __str__(self):
+
+        if not self.meals:
+            return "*Geschlossen*\n"
+
+        text = ""
+        for meal in self.meals:
+            text += str(meal)
+        return text
 
 
 class Menu:
-    def __init__(self, lines: list[Line], screenshot):
+    def __init__(self, lines: list[Line]):
         self.lines = lines
-        self.screenshot = screenshot
+
+    def __str__(self):
+        text = ""
+        for line in self.lines:
+            text += f"**__{str(line.name)}__**:\n"
+            text += str(line) + "\n\n"
+        return text

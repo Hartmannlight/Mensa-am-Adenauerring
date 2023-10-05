@@ -1,4 +1,6 @@
-discord~=2.3.0
-selenium~=4.10.0
-holidays~=0.27
-gitpython~=3.1.31
+discord==2.3.2
+holidays==0.34
+gitpython==3.1.37
+aiohttp==3.8.5
+beautifulsoup4~=4.12.2
+schedule~=1.2.1
