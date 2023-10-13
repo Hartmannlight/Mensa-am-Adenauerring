@@ -2,12 +2,11 @@ version: '3.9'
 
 services:
   python:
-    image: joyzoursky/python-chromedriver:3.9-selenium
-    build: .
+    image: ghcr.io/hartmannlight/kit-mensa-discord-bot:latest
     restart: always
     environment:
-      - BOT_TOKEN=${BOT_TOKEN}
-      - GUILD=${GUILD}
-      - UPDATE_INTERVAL=${UPDATE_INTERVAL}
-      - PREFIX=${PREFIX}
+      - BOT_TOKEN=
+      - GUILD=
+      - CHANNEL_ID=
+      - UPDATE_INTERVAL=
       - TZ=Europe/Berlin
