@@ -1,9 +1,12 @@
+import logging
 
 import discord
 import datetime
 
 import menu_grabber
 from menu import Menu
+
+logger = logging.getLogger("bot")
 
 
 async def update_plan():
@@ -24,7 +27,9 @@ def add_menu(date: datetime.date, menu: Menu):
 
 def get_menu(date: datetime.date) -> Menu:
     if date not in plan:
+        logger.info(f'No menu for {date} found')
         raise KeyError(f'No menu for {date} found')
+
     else:
         return plan[date]
 

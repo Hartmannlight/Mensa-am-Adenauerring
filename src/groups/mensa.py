@@ -1,7 +1,12 @@
+import logging
+from src import plan
+
 import datetime
+
 import discord
 from discord import app_commands
-import plan
+
+logger = logging.getLogger("bot")
 
 
 class Mensa(app_commands.Group):
@@ -10,7 +15,9 @@ class Mensa(app_commands.Group):
     async def embed(self, interaction: discord.Interaction, days_ahead: int = 0):
 
         date = datetime.date.today() + datetime.timedelta(days=days_ahead)
-        print(f'{interaction.user} requested embedded menu for {date.strftime("%Y-%m-%d")}')
+
+        logger.info(f"{interaction.user} requested the menu for {date} - {interaction.data['options']} "
+                    f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
         try:
             embed = plan.get_embed(date)
@@ -20,5 +27,7 @@ class Mensa(app_commands.Group):
 
     @app_commands.command()
     async def screenshot(self, interaction: discord.Interaction, days_ahead: int = 0):
-        print(f'{interaction.user} requested a screenshot')
+        logger.info(f"{interaction.user} requested a menu screenshot - {interaction.data['options']} "
+                    f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+
         await interaction.response.send_message("Diese Funktion wurde aus technischen Gründen entfernt.", ephemeral=True)  # noqa

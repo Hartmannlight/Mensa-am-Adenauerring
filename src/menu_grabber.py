@@ -1,3 +1,4 @@
+import logging
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -5,6 +6,7 @@ from bs4 import BeautifulSoup
 import datetime
 from menu import Diet, Meal, Line, Menu
 
+logger = logging.getLogger("bot")
 
 # a meal is one thing you can take at a line
 # a (canteen) line is a queue for a specific collection of meals
@@ -18,6 +20,8 @@ async def get_week_plan(week: int) -> dict[datetime.date, Menu]:
         next_week = 1
     else:
         next_week = week + 1
+
+    logger.info(f'Getting plan updates for week {week} and {next_week}')
 
     html_plan_this_week = await get_html_plan(week)
     html_plan_next_week = await get_html_plan(next_week)
