@@ -1,19 +1,16 @@
 
-import config
-from src import plan
-
-import logging
-
 import datetime
-import holidays
+import logging
 from zoneinfo import ZoneInfo
 
 import discord
+import holidays
 from discord.ext import tasks
 
+import config
 from groups.advanced import Advanced
 from groups.mensa import Mensa
-
+from plan import Plan
 
 bot = discord.Client(intents=discord.Intents.default())
 tree = discord.app_commands.CommandTree(bot)
@@ -23,18 +20,21 @@ logger = logging.getLogger("bot")
 @bot.event
 async def on_ready():
     logger.info(f"{bot.user} connected to Discord")
-    tree.add_command(Mensa(name="mensa", description="Zeigt den aktuellen Speiseplan der Mensa an."))
-    tree.add_command(Advanced(name="advanced", description="Entwickler-Optionen"))
+
+    plan = Plan()
+
+    tree.add_command(Mensa(name="mensa", description="Zeigt den aktuellen Speiseplan der Mensa an.", plan=plan))
+    tree.add_command(Advanced(name="advanced", description="Entwickler-Optionen", plan=plan))
     tree.copy_global_to(guild=discord.Object(id=config.GUILD))
     await tree.sync(guild=discord.Object(id=config.GUILD))
     logger.debug("Command tree has been synced")
 
-    daily_post.start()
-    update_plan.start()
+    daily_post.start(plan)
+    update_plan.start(plan)
 
 
 @tasks.loop(time=datetime.time(hour=9, minute=30, tzinfo=ZoneInfo("Europe/Berlin")))
-async def daily_post():
+async def daily_post(plan: Plan):
     logger.debug("Preparing daily post")
     today = datetime.date.today()
     public_holidays = holidays.country_holidays("DE", subdiv="BW")
@@ -48,7 +48,7 @@ async def daily_post():
 
 
 @tasks.loop(seconds=config.UPDATE_INTERVAL)
-async def update_plan():
+async def update_plan(plan: Plan):
     await plan.update_plan()
 
 

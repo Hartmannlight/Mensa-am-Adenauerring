@@ -12,5 +12,8 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
+# docker uses ./src as the root directory, pycharm ./
+ENV PYTHONPATH /app
+
 # -u unbuffered output (the output does not always work without this)
-CMD ["python", "-u", "main.py"]
+CMD ["python", "-u", "src/main.py"]
