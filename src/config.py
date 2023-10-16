@@ -11,6 +11,8 @@ CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
 UPDATE_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))
 
+GIT_HASH = os.getenv("GIT_HASH", "This feature only works when the bot is deployed via Docker image from GitHub.")
+
 
 LOGGING_CONFIG = {
     "version": 1,

@@ -1,9 +1,8 @@
 import logging
-import os
 import time
 import discord
-import git
 from discord import app_commands
+from src import config
 from src.plan import Plan
 
 logger = logging.getLogger("bot")
@@ -20,9 +19,7 @@ class Advanced(app_commands.Group):
         logger.info(f"{interaction.user} requested the bot version - {interaction.data['options']} "
                     f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
-        repo = git.Repo(os.getcwd(), search_parent_directories=True)
-        sha = repo.head.object.hexsha
-        await interaction.response.send_message(sha)  # noqa
+        await interaction.response.send_message(config.GIT_HASH)  # noqa
 
     @app_commands.command()
     async def update(self, interaction: discord.Interaction):

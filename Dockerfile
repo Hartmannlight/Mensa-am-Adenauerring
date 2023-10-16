@@ -1,11 +1,12 @@
 FROM python:3.11-alpine
 WORKDIR /app
 
+# take git hash from build pipeline and set it as an environment variable
+ARG GIT_HASH
+ENV GIT_HASH ${GIT_HASH}
+
 # ignore pip root user warning
 ENV PIP_ROOT_USER_ACTION=ignore
-
-# required for "/advanced version" command
-RUN apk add --no-cache git
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
