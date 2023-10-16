@@ -6,10 +6,16 @@ import datetime
 import discord
 from discord import app_commands
 
+from src.plan import Plan
+
 logger = logging.getLogger("bot")
 
 
 class Mensa(app_commands.Group):
+
+    def __init__(self, plan: Plan, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.plan = plan
 
     @app_commands.command()
     async def embed(self, interaction: discord.Interaction, days_ahead: int = 0):
@@ -20,7 +26,7 @@ class Mensa(app_commands.Group):
                     f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
         try:
-            embed = plan.get_embed(date)
+            embed = self.plan.get_embed(date)
             await interaction.response.send_message(embed=embed)  # noqa
         except KeyError:
             await interaction.response.send_message(f'Kein Menü für {date.strftime("%A %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
