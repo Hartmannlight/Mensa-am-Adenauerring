@@ -1,7 +1,5 @@
-import logging
-from src import plan
-
 import datetime
+import logging
 
 import discord
 from discord import app_commands
@@ -29,7 +27,7 @@ class Mensa(app_commands.Group):
             embed = self.plan.get_embed(date)
             await interaction.response.send_message(embed=embed)  # noqa
         except KeyError:
-            await interaction.response.send_message(f'Kein Menü für {date.strftime("%A %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
+            await interaction.response.send_message(f'Kein Menü für {date.strftime("%A den %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
 
     @app_commands.command()
     async def screenshot(self, interaction: discord.Interaction, days_ahead: int = 0):
