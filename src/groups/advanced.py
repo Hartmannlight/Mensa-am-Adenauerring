@@ -10,9 +10,10 @@ logger = logging.getLogger("bot")
 
 class Advanced(app_commands.Group):
 
-    def __init__(self, plan: Plan, *args, **kwargs):
+    def __init__(self, plan: Plan, bot: discord.Client, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plan = plan
+        self.bot = bot
 
     @app_commands.command()
     async def version(self, interaction: discord.Interaction):
@@ -42,5 +43,5 @@ class Advanced(app_commands.Group):
         logger.info(f"{interaction.user} requested the ping - {interaction.data['options']} "
                     f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
-        latency = interaction.created_at.timestamp() - time.time()
-        await interaction.response.send_message(f"Pong! ({latency * 1000:.0f}ms)")  # noqa
+        latency = round(self.bot.latency * 1000)
+        await interaction.response.send_message(f"Pong! {latency}ms")  # noqa
