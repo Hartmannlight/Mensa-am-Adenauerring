@@ -1,4 +1,4 @@
-
+import asyncio
 import datetime
 import logging
 from zoneinfo import ZoneInfo
@@ -24,7 +24,7 @@ async def on_ready():
     plan = Plan()
 
     tree.add_command(Mensa(name="mensa", description="Zeigt den aktuellen Speiseplan der Mensa an.", plan=plan))
-    tree.add_command(Advanced(name="advanced", description="Entwickler-Optionen", plan=plan))
+    tree.add_command(Advanced(name="advanced", description="Entwickler-Optionen", plan=plan, bot=bot))
     tree.copy_global_to(guild=discord.Object(id=config.GUILD))
     await tree.sync(guild=discord.Object(id=config.GUILD))
     logger.debug("Command tree has been synced")
