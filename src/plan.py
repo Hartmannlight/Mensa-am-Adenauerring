@@ -1,7 +1,7 @@
+import datetime
 import logging
 
 import discord
-import datetime
 
 import menu_grabber
 from menu import Menu
@@ -16,7 +16,12 @@ class Plan:
 
     async def update_plan(self):
         curren_week = datetime.date.today().isocalendar()[1]
-        self.menus = await menu_grabber.get_week_plan(curren_week)
+
+        try:
+            self.menus = await menu_grabber.get_week_plan(curren_week)
+        except Exception as e:
+            logger.error(f'Error while updating plan: {e}')
+            raise e
 
     def get_menu(self, date: datetime.date) -> Menu:
         if date not in self.menus:

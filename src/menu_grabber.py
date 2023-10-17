@@ -1,9 +1,9 @@
+import datetime
 import logging
 
 import aiohttp
 from bs4 import BeautifulSoup
 
-import datetime
 from menu import Diet, Meal, Line, Menu
 
 logger = logging.getLogger("bot")
@@ -61,7 +61,10 @@ async def get_html_plan(week: int) -> BeautifulSoup:
 async def get_menu(html_plan: BeautifulSoup, day: int) -> Menu:
 
     html_menu = html_plan.find(id=f"canteen_day_{day}")  # day 1 = today, day 2 = tomorrow, etc.
+    if html_menu is None: return Menu([])
+
     html_canteen_lines = html_menu.find_all(class_="mensatype_rows")
+    if html_canteen_lines is None: return Menu([])
 
     canteen_line_objects = []
     for html_canteen_line in html_canteen_lines:
@@ -78,6 +81,7 @@ async def get_menu(html_plan: BeautifulSoup, day: int) -> Menu:
 async def extract_meals(meals_html_container) -> list[Meal]:
     meal_objects = []
     meals = meals_html_container.find_all('tr')
+    if meals is None: return meal_objects
 
     i = 0
     while i < len(meals):

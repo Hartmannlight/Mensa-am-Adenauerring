@@ -1,18 +1,17 @@
+import locale
 import os
 from logging.config import dictConfig
+
 from dotenv import load_dotenv
 
 load_dotenv()
+locale.setlocale(locale.LC_TIME, 'de_DE')  # necessary for german weekday names
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 GUILD = int(os.getenv("GUILD"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-
 UPDATE_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))
-
 GIT_HASH = os.getenv("GIT_HASH", "This feature only works when the bot is deployed via Docker image from GitHub.")
-
 
 LOGGING_CONFIG = {
     "version": 1,
