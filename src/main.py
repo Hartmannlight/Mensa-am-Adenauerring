@@ -43,7 +43,12 @@ async def daily_post(plan: Plan):
         return
 
     embed = plan.get_embed(today)
-    await bot.get_channel(config.CHANNEL_ID).send(embed=embed)
+    announcement_channel = bot.get_channel(config.CHANNEL_ID)
+    message = await announcement_channel.send(embed=embed)
+    try:
+        await message.publish()
+    except discord.Forbidden:
+        logger.error("Missing permissions for publishing")
     logger.info(f"Daily post on {today} has been sent")
 
 
