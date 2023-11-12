@@ -33,7 +33,7 @@ LOGGING_CONFIG = {
         "discord_py_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "discord_py.log",
+            "filename": "./logs/discord_py.log",
             "mode": "a",
             "formatter": "standard"
         },
@@ -47,7 +47,7 @@ LOGGING_CONFIG = {
         "bot_file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "mensa_bot.log",
+            "filename": "./logs/mensa_bot.log",
             "mode": "a",
             "formatter": "standard"
         }

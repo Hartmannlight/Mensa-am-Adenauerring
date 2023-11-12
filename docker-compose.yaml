@@ -4,6 +4,8 @@ services:
   python:
     image: ghcr.io/hartmannlight/kit-mensa-discord-bot:latest
     restart: always
+    volumes:
+      - /opt/docker/mensa-am-adenauerring/logs:/app/logs
     environment:
       - BOT_TOKEN=
       - GUILD=
