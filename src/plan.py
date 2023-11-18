@@ -13,12 +13,14 @@ class Plan:
 
     def __init__(self):
         self.menus = {}
+        self.last_update = datetime.datetime(1970, 1, 1)
 
     async def update_plan(self):
         curren_week = datetime.date.today().isocalendar()[1]
 
         try:
             self.menus = await menu_grabber.get_week_plan(curren_week)
+            self.last_update = datetime.datetime.now()
         except Exception as e:
             logger.error(f'Error while updating plan: {e}')
             raise e
@@ -37,7 +39,7 @@ class Plan:
         embed.set_author(name=title, url=link)
         embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan" +
                               "                                           " +  # S P A C E S
-                              f"Stand: {datetime.datetime.now().strftime('%d.%m  %H:%M Uhr')}")
+                              f"Stand: {self.last_update.strftime('%d.%m  %H:%M Uhr')}")
 
         embed.add_field(name="Linie 1 Gut & Günstig", value=str(menu.lines[0]))
         embed.add_field(name="Linie 2 Vegane Linie", value=str(menu.lines[1]))
