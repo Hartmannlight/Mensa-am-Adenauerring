@@ -2,9 +2,9 @@ import datetime
 import logging
 
 import discord
+from discord import Embed
 
 import menu_grabber
-from menu import Menu
 
 logger = logging.getLogger("bot")
 
@@ -23,16 +23,11 @@ class Plan:
             logger.error(f'Error while updating plan: {e}')
             raise e
 
-    def get_menu(self, date: datetime.date) -> Menu:
-        if date not in self.menus:
+    def get_embed(self, date: datetime.date) -> Embed | None:
+        menu = self.menus.get(date)
+        if menu is None:
             logger.info(f'No menu for {date} found')
-            raise KeyError(f'No menu for {date} found')
-
-        else:
-            return self.menus[date]
-
-    def get_embed(self, date: datetime.date) -> discord.Embed:
-        menu = self.get_menu(date)
+            return None
 
         embed = discord.Embed(color=0xff2f00)
 
@@ -40,7 +35,9 @@ class Plan:
         link = f'https://www.sw-ka.de/de/hochschulgastronomie/speiseplan/mensa_adenauerring/?kw={date.isocalendar()[1]}'
 
         embed.set_author(name=title, url=link)
-        embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan")
+        embed.set_footer(text="🍖 Fleisch, 🐟 Fisch, 🌱 Vegetarisch, 🌻 Vegan" +
+                              "                                           " +  # S P A C E S
+                              f"Stand: {datetime.datetime.now().strftime('%d.%m  %H:%M Uhr')}")
 
         embed.add_field(name="Linie 1 Gut & Günstig", value=str(menu.lines[0]))
         embed.add_field(name="Linie 2 Vegane Linie", value=str(menu.lines[1]))

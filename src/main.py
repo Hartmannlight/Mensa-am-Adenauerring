@@ -16,6 +16,8 @@ bot = discord.Client(intents=discord.Intents.default())
 tree = discord.app_commands.CommandTree(bot)
 logger = logging.getLogger("bot")
 
+latest_daily_post_message: discord.Message | None = None
+
 
 @bot.event
 async def on_ready():
@@ -29,8 +31,21 @@ async def on_ready():
     await tree.sync(guild=discord.Object(id=config.GUILD))
     logger.debug("Command tree has been synced")
 
-    daily_post.start(plan)
     update_plan.start(plan)
+    daily_post.start(plan)
+
+
+@tasks.loop(seconds=config.UPDATE_INTERVAL)
+async def update_plan(plan: Plan):
+    today = datetime.date.today()
+
+    old_plan = str(plan.menus.get(today))
+    await plan.update_plan()
+    new_plan = str(plan.menus.get(today))
+
+    if old_plan != new_plan:
+        logger.debug("Found changes in the menu.")
+        await update_daily_post(plan, today)
 
 
 @tasks.loop(time=datetime.time(hour=9, minute=30, tzinfo=ZoneInfo("Europe/Berlin")))
@@ -43,18 +58,30 @@ async def daily_post(plan: Plan):
         return
 
     embed = plan.get_embed(today)
+    if embed is None:
+        return
     announcement_channel = bot.get_channel(config.CHANNEL_ID)
     message = await announcement_channel.send(embed=embed)
     logger.info(f"Daily post on {today} has been sent")
+
+    global latest_daily_post_message
+    latest_daily_post_message = message
 
     if announcement_channel.is_news():
         await message.publish()
         logger.info("published daily post")
 
 
-@tasks.loop(seconds=config.UPDATE_INTERVAL)
-async def update_plan(plan: Plan):
-    await plan.update_plan()
+async def update_daily_post(plan: Plan, today: datetime.date):
+    if latest_daily_post_message is None:
+        return
+
+    if latest_daily_post_message.created_at.date() == today:
+        embed = plan.get_embed(today)
+        if embed is None:
+            return
+        await latest_daily_post_message.edit(embed=embed)
+        logger.info(f"Daily post on {today} has been updated")
 
 
 if __name__ == "__main__":

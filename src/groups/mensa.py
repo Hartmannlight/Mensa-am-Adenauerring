@@ -23,11 +23,11 @@ class Mensa(app_commands.Group):
         logger.info(f"{interaction.user} requested the menu for {date} - {interaction.data['options']} "
                     f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
-        try:
-            embed = self.plan.get_embed(date)
-            await interaction.response.send_message(embed=embed)  # noqa
-        except KeyError:
+        embed = self.plan.get_embed(date)
+        if embed is None:
             await interaction.response.send_message(f'Kein Menü für {date.strftime("%A den %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
+        else:
+            await interaction.response.send_message(embed=embed)  # noqa
 
     @app_commands.command()
     async def screenshot(self, interaction: discord.Interaction, days_ahead: int = 0):
