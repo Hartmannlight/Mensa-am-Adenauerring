@@ -4,7 +4,7 @@ import logging
 import aiohttp
 from bs4 import BeautifulSoup
 
-from menu import Diet, Meal, Line, Menu
+from menu import Diet, Meal, Line, Menu, NutriScore, EnvironmentScore
 
 logger = logging.getLogger("bot")
 
@@ -88,22 +88,50 @@ async def extract_meals(meals_html_container) -> list[Meal]:
         meal = meals[i]
 
         if meal.get("class") is None:  # in case a line is closed, the first element is empty
-            i += 1
-            continue
+            return meal_objects
 
         meal_title_html_container = meal.find(class_="menu-title")
         name = meal_title_html_container.find(class_="bg").get_text()
 
         allergens = meal_title_html_container.find("sup")
-        allergens = allergens.get_text() if allergens else ""
+        allergens = allergens.get_text() if allergens else None
 
         price = meal.find(class_="price_1").get_text()
 
         diet_text = meal.get("class")[0]
         diet = Diet(diet_text)
 
-        meal_object = Meal(name, price, diet, allergens)
+        i += 1
+
+        nutri_score = None
+        environment_score = None
+
+        if i < len(meals):
+            meal_nutri = meals[i]
+
+            if meal_nutri.get("class") is None:
+                energy = meal_nutri.find(class_="energie").find_all('div')[1].get_text()
+                proteins = meal_nutri.find(class_="proteine").find_all('div')[1].get_text()
+                carbohydrates = meal_nutri.find(class_="kohlenhydrate").find_all('div')[1].get_text()
+                sugar = meal_nutri.find(class_="zucker").find_all('div')[1].get_text()
+                fat = meal_nutri.find(class_="fett").find_all('div')[1].get_text()
+                saturated_fat = meal_nutri.find(class_="gesaettigt").find_all('div')[1].get_text()
+                salt = meal_nutri.find(class_="salz").find_all('div')[1].get_text()
+                nutri_score = NutriScore(energy, proteins, carbohydrates, sugar, fat, saturated_fat, salt)
+
+                if meal_nutri.find(class_="co2_bewertung_wolke"):
+                    co2 = meal_nutri.find(class_="co2_bewertung_wolke").find(class_="value").get_text()
+                else:
+                    co2 = meal_nutri.find(class_="co2_bewertung").find(class_="value").get_text()
+
+                water = meal_nutri.find(class_="wasser_bewertung").find(class_="value").get_text()
+                animal_welfare = meal_nutri.find(class_="tierwohl").get("class")[1]
+                rainforest = meal_nutri.find(class_="regenwald").get("class")[1]
+                environment_score = EnvironmentScore(co2, water, animal_welfare, rainforest)
+
+                i += 1
+
+        meal_object = Meal(name, price, diet, nutri_score, environment_score, allergens)
         meal_objects.append(meal_object)
 
-        i += 1
     return meal_objects
