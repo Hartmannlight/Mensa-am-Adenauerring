@@ -24,7 +24,7 @@ class Mensa(app_commands.Group):
         if embed is None:
             await interaction.response.send_message(f'Kein Menü für {date.strftime("%A den %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
         else:
-            await interaction.response.send_message(embed=embed, view=Buttons(self.plan, days_ahead, timeout=640))  # noqa
+            await interaction.response.send_message(embed=embed, view=Buttons(self.plan, days_ahead, timeout=28800))  # noqa
 
 
 class Buttons(discord.ui.View):
@@ -44,7 +44,7 @@ class Buttons(discord.ui.View):
     @discord.ui.button(label="Nährwerte & Umwelt-Score", style=discord.ButtonStyle.secondary)
     async def environment_button(self, interaction, button):
         logger.info(f"{interaction.user} requested the nutri-score menu ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
-        await interaction.response.send_message(view=LineSelectMenu(self.plan, self.date, timeout=640), ephemeral=True)
+        await interaction.response.send_message(view=LineSelectMenu(self.plan, self.date, timeout=28800), ephemeral=True)
 
 
 class LineSelectMenu(discord.ui.View):
