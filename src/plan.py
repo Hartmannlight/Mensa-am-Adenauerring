@@ -47,13 +47,13 @@ class Plan:
         embed.add_field(name="[pizza]werk", value=str(menu.lines[12]) + "\n" + str(menu.lines[10]), inline=False)
         return embed
 
-    def get_expanded_menu_embed(self, date: datetime.date) -> Embed | None:
+    def get_expanded_menu_embed(self, date: datetime.date) -> Embed:
         menu = self.menus.get(date)
-        if menu is None:
-            logger.info(f'No menu for {date} found')
-            return None
-
         embed = self.get_embed_template(date)
+
+        if menu is None:
+            return embed
+
         embed.add_field(name="[KŒRI]WERK", value=str(menu.lines[8]) + "\n", inline=False)
         embed.add_field(name="Schnitzelbar", value=str(menu.lines[5]) + "\n", inline=False)
         embed.add_field(name="Cafeteria", value=str(menu.lines[9]) + "\n", inline=True)

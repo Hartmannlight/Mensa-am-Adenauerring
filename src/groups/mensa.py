@@ -17,17 +17,14 @@ class Mensa(app_commands.Group):
 
     @app_commands.command()
     async def embed(self, interaction: discord.Interaction, days_ahead: int = 0):
-
         date = datetime.date.today() + datetime.timedelta(days=days_ahead)
-
-        logger.info(f"{interaction.user} requested the menu for {date} - {interaction.data['options']} "
-                    f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+        logger.info(f"{interaction.user} requested the menu for {date} - {interaction.data['options']} ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
         embed = self.plan.get_menu_embed(date)
         if embed is None:
             await interaction.response.send_message(f'Kein Menü für {date.strftime("%A den %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
         else:
-            await interaction.response.send_message(embed=embed, view=Buttons(self.plan, days_ahead))  # noqa
+            await interaction.response.send_message(embed=embed, view=Buttons(self.plan, days_ahead, timeout=640))  # noqa
 
 
 class Buttons(discord.ui.View):
@@ -39,22 +36,18 @@ class Buttons(discord.ui.View):
 
     @discord.ui.button(label="Mehr", style=discord.ButtonStyle.success)
     async def more_button(self, interaction, button):
-
-        logger.info(f"{interaction.user} requested the nutri score for {self.date} "
-                    f"({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+        logger.info(f"{interaction.user} requested all lines ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
 
         embed = self.plan.get_expanded_menu_embed(self.date)
-        if embed is None:
-            await interaction.response.send_message(f'Kein Menü für {self.date.strftime("%A den %d.%m.%Y")} gefunden.', ephemeral=True)  # noqa
-        else:
-            await interaction.response.send_message(embed=embed)  # noqa
+        await interaction.response.send_message(embed=embed)  # noqa
 
     @discord.ui.button(label="Nährwerte & Umwelt-Score", style=discord.ButtonStyle.secondary)
     async def environment_button(self, interaction, button):
-        await interaction.response.send_message(view=MyView(self.plan, self.date), ephemeral=True)
+        logger.info(f"{interaction.user} requested the nutri-score menu ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+        await interaction.response.send_message(view=LineSelectMenu(self.plan, self.date, timeout=640), ephemeral=True)
 
 
-class MyView(discord.ui.View):
+class LineSelectMenu(discord.ui.View):
 
     def __init__(self, plan: Plan, date: datetime.date, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -110,6 +103,7 @@ class MyView(discord.ui.View):
         ]
     )
     async def select_callback(self, interaction, select):
+        logger.info(f"{interaction.user} requested the nutri score for line {select.values[0]} ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
         environment_embed = self.plan.get_environment_embed(self.date, int(select.values[0]))
         nutri_embed = self.plan.get_nutri_embed(self.date, int(select.values[0]))
         await interaction.response.send_message(embeds=[nutri_embed, environment_embed], ephemeral=True)
