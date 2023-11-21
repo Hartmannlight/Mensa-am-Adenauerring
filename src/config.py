@@ -25,7 +25,7 @@ LOGGING_CONFIG = {
 
     "handlers": {
         "discord_py_console": {
-            "level": "INFO",
+            "level": "WARNING",
             "class": "logging.StreamHandler",
             "formatter": "standard"
         },
@@ -61,7 +61,7 @@ LOGGING_CONFIG = {
         },
 
         "discord": {
-            "handlers": ["discord_py_file"],
+            "handlers": ["discord_py_console", "discord_py_file"],
             "level": "INFO",
             "propagate": False,
         }

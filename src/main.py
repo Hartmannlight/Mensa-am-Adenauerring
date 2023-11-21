@@ -57,7 +57,7 @@ async def daily_post(plan: Plan):
         logger.info(f"Skipping daily post on {today} because it's a public holiday or the weekend")
         return
 
-    embed = plan.get_embed(today)
+    embed = plan.get_menu_embed(today)
     if embed is None:
         return
     announcement_channel = bot.get_channel(config.CHANNEL_ID)
@@ -77,7 +77,7 @@ async def update_daily_post(plan: Plan, today: datetime.date):
         return
 
     if latest_daily_post_message.created_at.date() == today:
-        embed = plan.get_embed(today)
+        embed = plan.get_menu_embed(today)
         if embed is None:
             return
         await latest_daily_post_message.edit(embed=embed)
