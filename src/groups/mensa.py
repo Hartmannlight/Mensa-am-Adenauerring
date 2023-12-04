@@ -37,9 +37,9 @@ class Buttons(discord.ui.View):
     @discord.ui.button(label="Mehr", style=discord.ButtonStyle.success)
     async def more_button(self, interaction, button):
         logger.info(f"{interaction.user} requested all lines ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
-
+        no_mentions = discord.AllowedMentions.none()
         embed = self.plan.get_expanded_menu_embed(self.date)
-        await interaction.response.send_message(embed=embed)  # noqa
+        await interaction.response.send_message(content=f"<@{interaction.user.id}>", embed=embed, allowed_mentions=no_mentions)
 
     @discord.ui.button(label="Nährwerte & Umwelt-Score", style=discord.ButtonStyle.secondary)
     async def environment_button(self, interaction, button):
