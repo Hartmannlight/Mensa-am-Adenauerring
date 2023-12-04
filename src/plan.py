@@ -23,7 +23,6 @@ class Plan:
             self.last_update = datetime.datetime.now()
         except Exception as e:
             logger.error(f'Error while updating plan: {e}')
-            raise e
 
     def get_menu_embed(self, date: datetime.date) -> Embed | None:
         menu = self.menus.get(date)
