@@ -1,5 +1,5 @@
 discord.py==2.3.2
-holidays==0.36
+holidays==0.43
 aiohttp==3.8.5
 beautifulsoup4~=4.12.2
 schedule~=1.2.1
