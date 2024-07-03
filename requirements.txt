@@ -1,7 +1,7 @@
 discord.py==2.3.2
-holidays==0.36
+holidays==0.47
 aiohttp==3.8.5
-beautifulsoup4~=4.12.2
+beautifulsoup4~=4.12.3
 schedule~=1.2.1
-python-dotenv~=1.0.0
-tzdata==2024.1
+python-dotenv~=1.0.1
+tzdata==2023.3
