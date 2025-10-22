@@ -1,7 +1,9 @@
-discord.py==2.3.2
-aiohttp==3.9.5
-holidays==0.47
-beautifulsoup4~=4.12.3
-schedule~=1.2.1
-python-dotenv~=1.0.1
-tzdata==2023.3
+discord.py==2.6.4
+aiohttp==3.13.1
+holidays==0.83
+beautifulsoup4~=4.14.2
+schedule~=1.2.2
+python-dotenv~=1.1.1
+tzdata==2025.2
+httpx
+lxml

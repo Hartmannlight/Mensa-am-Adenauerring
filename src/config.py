@@ -1,11 +1,17 @@
 import locale
 import os
+from pathlib import Path
 from logging.config import dictConfig
 
 from dotenv import load_dotenv
 
 load_dotenv()
-locale.setlocale(locale.LC_TIME, 'de_DE')  # necessary for german weekday names
+
+# Locale for German weekday names; ignore if not available on this system
+try:
+    locale.setlocale(locale.LC_TIME, "de_DE")
+except locale.Error:
+    pass
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GUILD = int(os.getenv("GUILD"))
@@ -13,14 +19,17 @@ CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 UPDATE_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))
 GIT_HASH = os.getenv("GIT_HASH", "This feature only works when the bot is deployed via Docker image from GitHub.")
 
+# Resolve project root = parent of src/, then ensure logs/
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING_CONFIG = {
     "version": 1,
     "disabled_existing_loggers": False,
 
     "formatters": {
-        "standard": {
-            "format": "[%(asctime)-19.19s - %(levelname)-8s] %(message)s"
-        }
+        "standard": {"format": "[%(asctime)-19.19s - %(levelname)-8s] %(message)s"}
     },
 
     "handlers": {
@@ -33,8 +42,9 @@ LOGGING_CONFIG = {
         "discord_py_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "./logs/discord_py.log",
+            "filename": str(LOG_DIR / "discord_py.log"),
             "mode": "a",
+            "encoding": "utf-8",
             "formatter": "standard"
         },
 
@@ -47,8 +57,9 @@ LOGGING_CONFIG = {
         "bot_file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "./logs/mensa_bot.log",
+            "filename": str(LOG_DIR / "mensa_bot.log"),
             "mode": "a",
+            "encoding": "utf-8",
             "formatter": "standard"
         }
     },

@@ -34,16 +34,16 @@ class Buttons(discord.ui.View):
         self.plan = plan
         self.date = datetime.date.today() + datetime.timedelta(days=days_ahead)
 
-    @discord.ui.button(label="Mehr", style=discord.ButtonStyle.success)
-    async def more_button(self, interaction, button):
-        logger.info(f"{interaction.user} requested all lines ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+    @discord.ui.button(label='Mehr', style=discord.ButtonStyle.success)
+    async def more_button(self, interaction: discord.Interaction, button: discord.ui.Button):  # noqa
+        logger.info(f'{interaction.user} requested all lines ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})')
         no_mentions = discord.AllowedMentions.none()
         embed = self.plan.get_expanded_menu_embed(self.date)
         await interaction.response.send_message(content=f"<@{interaction.user.id}>", embed=embed, allowed_mentions=no_mentions)
 
-    @discord.ui.button(label="Nährwerte & Umwelt-Score", style=discord.ButtonStyle.secondary)
-    async def environment_button(self, interaction, button):
-        logger.info(f"{interaction.user} requested the nutri-score menu ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
+    @discord.ui.button(label='Nährwerte & Umwelt-Score', style=discord.ButtonStyle.secondary)
+    async def environment_button(self, interaction: discord.Interaction, button: discord.ui.Button):  # noqa
+        logger.info(f'{interaction.user} requested the nutri-score menu ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})')
         await interaction.response.send_message(view=LineSelectMenu(self.plan, self.date, timeout=28800), ephemeral=True)
 
 
@@ -54,56 +54,32 @@ class LineSelectMenu(discord.ui.View):
         self.plan = plan
         self.date = date
 
-    @discord.ui.select(
-        placeholder="Wähle ein Linie",
-        min_values=1,
-        max_values=1,
-        options=[
-            discord.SelectOption(
-                label="Linie 1",
-                description="Gut & Günstig",
-                value="0"
-            ),
-            discord.SelectOption(
-                label="Linie 2",
-                description="Vegane Linie",
-                value="1"
-            ),
-            discord.SelectOption(
-                label="Linie 3",
-                description="",
-                value="2"
-            ),
-            discord.SelectOption(
-                label="Linie 4",
-                description="",
-                value="3"
-            ),
-            discord.SelectOption(
-                label="Linie 5",
-                description="",
-                value="4"
-            ),
-            discord.SelectOption(
-                label="Linie 6",
-                description="",
-                value="6"
-            ),
-            discord.SelectOption(
-                label="[pizza]werk",
-                description="",
-                value="10"
-            ),
-            discord.SelectOption(
-                label="[KŒRI]WERK",
-                description="Die einzig wahre Linie",
-                value="8"
-            ),
+        options = []
+        for name in self.plan.list_lines_for_date(self.date):
+            options.append(discord.SelectOption(label=name, value=name))
 
-        ]
-    )
-    async def select_callback(self, interaction, select):
-        logger.info(f"{interaction.user} requested the nutri score for line {select.values[0]} ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})")
-        environment_embed = self.plan.get_environment_embed(self.date, int(select.values[0]))
-        nutri_embed = self.plan.get_nutri_embed(self.date, int(select.values[0]))
-        await interaction.response.send_message(embeds=[nutri_embed, environment_embed], ephemeral=True)
+        # Fallback, wenn keine Linien vorhanden sind
+        if not options:
+            options = [discord.SelectOption(label='Keine Linien verfügbar', value='')]
+
+        select = discord.ui.Select(placeholder='Wähle eine Linie', min_values=1, max_values=1, options=options)
+        select.callback = self._on_select  # type: ignore[attr-defined]
+        self.add_item(select)
+
+    async def _on_select(self, interaction: discord.Interaction):  # type: ignore[override]
+        select: discord.ui.Select = interaction.data  # not used directly; discord passes selected via view children
+        # safer: read from the children select
+        selected_value = None
+        for child in self.children:
+            if isinstance(child, discord.ui.Select) and child.values:
+                selected_value = child.values[0]
+                break
+
+        if not selected_value:
+            await interaction.response.send_message('Keine Linie ausgewählt.', ephemeral=True)
+            return
+
+        logger.info(f'{interaction.user} requested the nutri score for line {selected_value} ({interaction.user.id} in {interaction.guild.id}.{interaction.channel.id})')
+        environment_embed = self.plan.get_environment_embed(self.date, selected_value)
+        nutri_embed = self.plan.get_nutri_embed(self.date, selected_value)
+        await interaction.response.send_message(embeds=[e for e in (nutri_embed, environment_embed) if e], ephemeral=True)
